@@ -110,15 +110,16 @@ double applyFilter(class Filter *filter, cs1300bmp *input, cs1300bmp *output) {
 
       for (int j = 0; j < filterSize; j++) {
         for (int i = 0; i < filterSize; i++) {
+          int filterValue = filter->get(i, j);
           *valueR =
-              *valueR + (input->color[row + i - 1][col + j - 1][COLOR_RED] *
-                         filter->get(i, j));
+              *valueR +
+              (input->color[row + i - 1][col + j - 1][COLOR_RED] * filterValue);
           *valueG =
               *valueG + (input->color[row + i - 1][col + j - 1][COLOR_GREEN] *
-                         filter->get(i, j));
+                         filterValue);
           *valueB =
               *valueB + (input->color[row + i - 1][col + j - 1][COLOR_BLUE] *
-                         filter->get(i, j));
+                         filterValue);
         }
       }
 
