@@ -1,9 +1,9 @@
-#include <stdio.h>
-#include "cs1300bmp.h"
-#include <iostream>
-#include <fstream>
-#include <stdlib.h>
 #include "Filter.h"
+#include "cs1300bmp.h"
+#include <fstream>
+#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -12,15 +12,13 @@ using namespace std;
 //
 // Forward declare the functions
 //
-Filter * readFilter(string filename);
+Filter *readFilter(string filename);
 double applyFilter(Filter *filter, cs1300bmp *input, cs1300bmp *output);
 
-int
-main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 
-  if ( argc < 2) {
-    fprintf(stderr,"Usage: %s filter inputfile1 inputfile2 .... \n", argv[0]);
+  if (argc < 2) {
+    fprintf(stderr, "Usage: %s filter inputfile1 inputfile2 .... \n", argv[0]);
   }
 
   //
@@ -47,41 +45,39 @@ main(int argc, char **argv)
 
   for (int inNum = 2; inNum < argc; inNum++) {
     string inputFilename = argv[inNum];
-    string outputFilename = "filtered-" + filterOutputName + "-" + inputFilename;
+    string outputFilename =
+        "filtered-" + filterOutputName + "-" + inputFilename;
     struct cs1300bmp *input = new struct cs1300bmp;
     struct cs1300bmp *output = new struct cs1300bmp;
-    int ok = cs1300bmp_readfile( (char *) inputFilename.c_str(), input);
+    int ok = cs1300bmp_readfile((char *)inputFilename.c_str(), input);
 
-    if ( ok ) {
+    if (ok) {
       double sample = applyFilter(filter, input, output);
       sum += sample;
       samples++;
-      cs1300bmp_writefile((char *) outputFilename.c_str(), output);
+      cs1300bmp_writefile((char *)outputFilename.c_str(), output);
     }
     delete input;
     delete output;
   }
   fprintf(stdout, "Average cycles per sample is %f\n", sum / samples);
-
 }
 
-class Filter *
-readFilter(string filename)
-{
+class Filter *readFilter(string filename) {
   ifstream input(filename.c_str());
 
-  if ( ! input.bad() ) {
+  if (!input.bad()) {
     int size = 0;
     input >> size;
     Filter *filter = new Filter(size);
     int div;
     input >> div;
-    filter -> setDivisor(div);
-    for (int i=0; i < size; i++) {
-      for (int j=0; j < size; j++) {
-	int value;
-	input >> value;
-	filter -> set(i,j,value);
+    filter->setDivisor(div);
+    for (int i = 0; i < size; i++) {
+      for (int j = 0; j < size; j++) {
+        int value;
+        input >> value;
+        filter->set(i, j, value);
       }
     }
     return filter;
@@ -91,52 +87,48 @@ readFilter(string filename)
   }
 }
 
-
-double
-applyFilter(class Filter *filter, cs1300bmp *input, cs1300bmp *output)
-{
+double applyFilter(class Filter *filter, cs1300bmp *input, cs1300bmp *output) {
 
   long long cycStart, cycStop;
 
   cycStart = rdtscll();
 
-  output -> width = input -> width;
-  output -> height = input -> height;
+  output->width = input->width;
+  output->height = input->height;
 
+  for (int col = 1; col < (input->width) - 1; col = col + 1) {
+    for (int row = 1; row < (input->height) - 1; row = row + 1) {
+      for (int plane = 0; plane < 3; plane++) {
 
-  for(int col = 1; col < (input -> width) - 1; col = col + 1) {
-    for(int row = 1; row < (input -> height) - 1 ; row = row + 1) {
-      for(int plane = 0; plane < 3; plane++) {
+        output->color[plane][row][col] = 0;
 
-	output -> color[plane][row][col] = 0;
+        for (int j = 0; j < filter->getSize(); j++) {
+          for (int i = 0; i < filter->getSize(); i++) {
+            output->color[plane][row][col] =
+                output->color[plane][row][col] +
+                (input->color[plane][row + i - 1][col + j - 1] *
+                 filter->get(i, j));
+          }
+        }
 
-	for (int j = 0; j < filter -> getSize(); j++) {
-	  for (int i = 0; i < filter -> getSize(); i++) {	
-	    output -> color[plane][row][col]
-	      = output -> color[plane][row][col]
-	      + (input -> color[plane][row + i - 1][col + j - 1] 
-		 * filter -> get(i, j) );
-	  }
-	}
-	
-	output -> color[plane][row][col] = 	
-	  output -> color[plane][row][col] / filter -> getDivisor();
+        output->color[plane][row][col] =
+            output->color[plane][row][col] / filter->getDivisor();
 
-	if ( output -> color[plane][row][col]  < 0 ) {
-	  output -> color[plane][row][col] = 0;
-	}
+        if (output->color[plane][row][col] < 0) {
+          output->color[plane][row][col] = 0;
+        }
 
-	if ( output -> color[plane][row][col]  > 255 ) { 
-	  output -> color[plane][row][col] = 255;
-	}
+        if (output->color[plane][row][col] > 255) {
+          output->color[plane][row][col] = 255;
+        }
       }
     }
   }
 
   cycStop = rdtscll();
   double diff = cycStop - cycStart;
-  double diffPerPixel = diff / (output -> width * output -> height);
-  fprintf(stderr, "Took %f cycles to process, or %f cycles per pixel\n",
-	  diff, diff / (output -> width * output -> height));
+  double diffPerPixel = diff / (output->width * output->height);
+  fprintf(stderr, "Took %f cycles to process, or %f cycles per pixel\n", diff,
+          diff / (output->width * output->height));
   return diffPerPixel;
 }
