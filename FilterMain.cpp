@@ -103,26 +103,47 @@ double applyFilter(class Filter *filter, cs1300bmp *input, cs1300bmp *output) {
 
   for (int row = 1; row < rows; row = row + 1) {
     for (int col = 1; col < cols; col = col + 1) {
-      for (int plane = 0; plane < 3; plane++) {
-        int *value = &output->color[row][col][plane];
-        *value = 0;
+      int *valueR = &output->color[row][col][COLOR_RED];
+      int *valueG = &output->color[row][col][COLOR_GREEN];
+      int *valueB = &output->color[row][col][COLOR_BLUE];
 
-        for (int j = 0; j < filterSize; j++) {
-          for (int i = 0; i < filterSize; i++) {
-            *value = *value + (input->color[row + i - 1][col + j - 1][plane] *
-                               filter->get(i, j));
-          }
+      for (int j = 0; j < filterSize; j++) {
+        for (int i = 0; i < filterSize; i++) {
+          *valueR =
+              *valueR + (input->color[row + i - 1][col + j - 1][COLOR_RED] *
+                         filter->get(i, j));
+          *valueG =
+              *valueG + (input->color[row + i - 1][col + j - 1][COLOR_GREEN] *
+                         filter->get(i, j));
+          *valueB =
+              *valueB + (input->color[row + i - 1][col + j - 1][COLOR_BLUE] *
+                         filter->get(i, j));
         }
+      }
 
-        *value = *value / filterDivisor;
+      *valueR = *valueR / filterDivisor;
+      *valueG = *valueG / filterDivisor;
+      *valueB = *valueB / filterDivisor;
 
-        if (*value < 0) {
-          *value = 0;
-        }
+      if (*valueR < 0) {
+        *valueR = 0;
+      }
+      if (*valueR > 255) {
+        *valueR = 255;
+      }
 
-        if (*value > 255) {
-          *value = 255;
-        }
+      if (*valueG < 0) {
+        *valueG = 0;
+      }
+      if (*valueG > 255) {
+        *valueG = 255;
+      }
+
+      if (*valueB < 0) {
+        *valueB = 0;
+      }
+      if (*valueB > 255) {
+        *valueB = 255;
       }
     }
   }
