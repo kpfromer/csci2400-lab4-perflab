@@ -96,14 +96,19 @@ double applyFilter(class Filter *filter, cs1300bmp *input, cs1300bmp *output) {
   output->width = input->width;
   output->height = input->height;
 
-  for (int col = 1; col < (input->width) - 1; col = col + 1) {
-    for (int row = 1; row < (input->height) - 1; row = row + 1) {
+  int cols = (input->width) - 1;
+  int rows = (input->height) - 1;
+  int filterSize = filter->getSize();
+  int filterDivisor = filter->getDivisor();
+
+  for (int col = 1; col < cols; col = col + 1) {
+    for (int row = 1; row < rows; row = row + 1) {
       for (int plane = 0; plane < 3; plane++) {
 
         output->color[row][col][plane] = 0;
 
-        for (int j = 0; j < filter->getSize(); j++) {
-          for (int i = 0; i < filter->getSize(); i++) {
+        for (int j = 0; j < filterSize; j++) {
+          for (int i = 0; i < filterSize; i++) {
             output->color[row][col][plane] =
                 output->color[row][col][plane] +
                 (input->color[row + i - 1][col + j - 1][plane] *
@@ -112,7 +117,7 @@ double applyFilter(class Filter *filter, cs1300bmp *input, cs1300bmp *output) {
         }
 
         output->color[row][col][plane] =
-            output->color[row][col][plane] / filter->getDivisor();
+            output->color[row][col][plane] / filterDivisor;
 
         if (output->color[row][col][plane] < 0) {
           output->color[row][col][plane] = 0;
