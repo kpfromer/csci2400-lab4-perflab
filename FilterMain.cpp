@@ -101,6 +101,7 @@ double applyFilter(class Filter *filter, cs1300bmp *input, cs1300bmp *output) {
   int filterSize = filter->getSize();
   int filterDivisor = filter->getDivisor();
 
+#pragma omp parallel for
   for (int row = 1; row < rows; row = row + 1) {
     for (int col = 1; col < cols; col = col + 1) {
       int *valueR = &output->color[row][col][COLOR_RED];
