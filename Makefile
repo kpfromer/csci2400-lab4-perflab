@@ -11,8 +11,8 @@ CXXFLAGS= -g -Ofast -fno-omit-frame-pointer -Wall -fopenmp -march=native -mtune=
 goals: judge
 	@echo "Done"
 
-filter: FilterMain.cpp Filter.cpp cs1300bmp.cc cs1300bmp.h Filter.h rdtsc.h
-	$(CXX) $(CXXFLAGS) -o filter FilterMain.cpp Filter.cpp cs1300bmp.cc
+filter: FilterMain.cpp cs1300bmp.cc cs1300bmp.h Filter.h rdtsc.h
+	$(CXX) $(CXXFLAGS) -o filter FilterMain.cpp cs1300bmp.cc
 
 ##
 ## Parameters for the test run
