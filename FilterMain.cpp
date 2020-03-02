@@ -87,6 +87,18 @@ class Filter *readFilter(string filename) {
   }
 }
 
+inline void applyPixel(class Filter *filter, cs1300bmp *input, const int &i,
+                       const int &j, const int &row, const int &col,
+                       int *valueR, int *valueG, int *valueB) {
+  int filterValue = filter->get(i, j);
+  *valueR = *valueR +
+            (input->color[row + i - 1][col + j - 1][COLOR_RED] * filterValue);
+  *valueG = *valueG +
+            (input->color[row + i - 1][col + j - 1][COLOR_GREEN] * filterValue);
+  *valueB = *valueB +
+            (input->color[row + i - 1][col + j - 1][COLOR_BLUE] * filterValue);
+}
+
 double applyFilter(class Filter *filter, cs1300bmp *input, cs1300bmp *output) {
 
   long long cycStart, cycStop;
@@ -98,30 +110,24 @@ double applyFilter(class Filter *filter, cs1300bmp *input, cs1300bmp *output) {
 
   int cols = (input->width) - 1;
   int rows = (input->height) - 1;
-  int filterSize = filter->getSize();
   int filterDivisor = filter->getDivisor();
 
 #pragma omp parallel for collapse(2)
-  for (int row = 1; row < rows; row = row + 1) {
-    for (int col = 1; col < cols; col = col + 1) {
+  for (int row = 1; row < rows; ++row) {
+    for (int col = 1; col < cols; ++col) {
       int *valueR = &output->color[row][col][COLOR_RED];
       int *valueG = &output->color[row][col][COLOR_GREEN];
       int *valueB = &output->color[row][col][COLOR_BLUE];
 
-      for (int j = 0; j < filterSize; j++) {
-        for (int i = 0; i < filterSize; i++) {
-          int filterValue = filter->get(i, j);
-          *valueR =
-              *valueR +
-              (input->color[row + i - 1][col + j - 1][COLOR_RED] * filterValue);
-          *valueG =
-              *valueG + (input->color[row + i - 1][col + j - 1][COLOR_GREEN] *
-                         filterValue);
-          *valueB =
-              *valueB + (input->color[row + i - 1][col + j - 1][COLOR_BLUE] *
-                         filterValue);
-        }
-      }
+      applyPixel(filter, input, 0, 0, row, col, valueR, valueG, valueB);
+      applyPixel(filter, input, 0, 1, row, col, valueR, valueG, valueB);
+      applyPixel(filter, input, 0, 2, row, col, valueR, valueG, valueB);
+      applyPixel(filter, input, 1, 0, row, col, valueR, valueG, valueB);
+      applyPixel(filter, input, 1, 1, row, col, valueR, valueG, valueB);
+      applyPixel(filter, input, 1, 2, row, col, valueR, valueG, valueB);
+      applyPixel(filter, input, 2, 0, row, col, valueR, valueG, valueB);
+      applyPixel(filter, input, 2, 1, row, col, valueR, valueG, valueB);
+      applyPixel(filter, input, 2, 2, row, col, valueR, valueG, valueB);
 
       *valueR = *valueR / filterDivisor;
       *valueG = *valueG / filterDivisor;
