@@ -6,7 +6,7 @@ CXX	=g++
 ## Use our standard compiler flags for the course...
 ## You can try changing these flags to improve performance.
 ##
-CXXFLAGS= -g -O3 -fno-omit-frame-pointer -Wall -fopenmp
+CXXFLAGS= -g -Ofast -fno-omit-frame-pointer -Wall -fopenmp -march=native -mtune=native
 
 goals: judge
 	@echo "Done"
