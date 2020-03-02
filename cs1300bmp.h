@@ -27,7 +27,7 @@ struct cs1300bmp {
   //
   // R/G/B fields
   // 
-  int color[MAX_COLORS][MAX_DIM][MAX_DIM];
+  int color[MAX_DIM][MAX_DIM][MAX_COLORS];
 };
 
 //
