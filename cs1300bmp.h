@@ -26,8 +26,9 @@ struct cs1300bmp {
   int height;
   //
   // R/G/B fields
-  // 
-  int color[MAX_DIM][MAX_DIM][MAX_COLORS];
+  //
+  // TODO: unsigned char
+  short color[MAX_DIM][MAX_DIM][MAX_COLORS];
 };
 
 //
@@ -44,6 +45,5 @@ int cs1300bmp_writefile(char *filename, struct cs1300bmp *image);
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif
