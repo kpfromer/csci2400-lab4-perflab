@@ -89,7 +89,7 @@ class Filter *readFilter(string filename) {
 
 inline void applyPixel(class Filter *filter, cs1300bmp *input, const int &i,
                        const int &j, const int &row, const int &col,
-                       int *valueR, int *valueG, int *valueB) {
+                       short *valueR, short *valueG, short *valueB) {
   int filterValue = filter->get(i, j);
   *valueR = *valueR +
             (input->color[row + i - 1][col + j - 1][COLOR_RED] * filterValue);
@@ -115,9 +115,9 @@ double applyFilter(class Filter *filter, cs1300bmp *input, cs1300bmp *output) {
 #pragma omp parallel for collapse(2)
   for (int row = 1; row < rows; ++row) {
     for (int col = 1; col < cols; ++col) {
-      int *valueR = &output->color[row][col][COLOR_RED];
-      int *valueG = &output->color[row][col][COLOR_GREEN];
-      int *valueB = &output->color[row][col][COLOR_BLUE];
+      short *valueR = &output->color[row][col][COLOR_RED];
+      short *valueG = &output->color[row][col][COLOR_GREEN];
+      short *valueB = &output->color[row][col][COLOR_BLUE];
 
       applyPixel(filter, input, 0, 0, row, col, valueR, valueG, valueB);
       applyPixel(filter, input, 0, 1, row, col, valueR, valueG, valueB);
