@@ -75,10 +75,10 @@ if ($label =~ "") {
     print "median CPE for $label is ", $cpe, "\n";
 }
 
-if ($cpe > 100) {
+if ($cpe > 400) {
     $score = 0;
 } else {
-    $score = 105.15 + 3.66 * log($cpe) + (-0.3 * $cpe) - 1;
+    $score = -23.992724 + 97.965717 * log($cpe) + -41.233109 * sqrt($cpe) + (0.817829 * $cpe);
     if ($score > 110 ) {
         $score = 110;
     }
